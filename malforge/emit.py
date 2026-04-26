@@ -138,8 +138,10 @@ def render(fmt, encrypted, meta_chain, amsi=False, etw=False, sandbox=False, pay
 
     # msbuild has its own crypto using slot
     msbuild_crypto = ''
+    crypto_using_fragment = ''
     if fmt == 'msbuild' and snippets.needs_aes_imports(meta_chain):
         msbuild_crypto = '<Using Namespace="System.Security.Cryptography" />'
+        crypto_using_fragment = 'using System.Security.Cryptography;'
 
     # VBA AMSI declare lines
     vba_amsi_declares = _VBA_AMSI_DECLARES if (amsi and lang == 'vba') else ''
@@ -155,6 +157,7 @@ def render(fmt, encrypted, meta_chain, amsi=False, etw=False, sandbox=False, pay
         'etw_block': etw_block,
         'stealth_classes': stealth_classes,
         'crypto_using': crypto_using,
+        'crypto_using_fragment': crypto_using_fragment,
         'msbuild_crypto_using': msbuild_crypto,
         'vba_amsi_declares': vba_amsi_declares,
         'payload_url': payload_url or '',
