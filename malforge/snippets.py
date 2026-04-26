@@ -275,11 +275,11 @@ _CS_D_INVOKE_CLASS = '''
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr GetModuleHandle(string lpModuleName);
 
-        public static T _mfg<T>(string _mfl, string _mff) where T : Delegate
+        public static T _mfg<T>(string _mfl, string _mff) 
         {
             IntPtr _mfh = GetModuleHandle(_mfl);
             IntPtr _mfa = _mfp(_mfh, _mff);
-            return (T)Marshal.GetDelegateForFunctionPointer(_mfa, typeof(T));
+            return (T)(object)Marshal.GetDelegateForFunctionPointer(_mfa, typeof(T));
         }
 
         public static IntPtr _mfp(IntPtr _mfm, string _mfn)

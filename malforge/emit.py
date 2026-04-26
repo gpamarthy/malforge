@@ -5,8 +5,8 @@ from jinja2 import Environment, FileSystemLoader
 
 from . import snippets
 
-# Path to the root templates directory
-TMPL_DIR = Path(__file__).parent.parent / 'templates'
+# Path to the templates directory inside the package
+TMPL_DIR = Path(__file__).parent / 'templates'
 
 # Initialize Jinja2 environment
 env = Environment(loader=FileSystemLoader(str(TMPL_DIR)))
