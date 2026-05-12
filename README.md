@@ -4,6 +4,10 @@ Shellcode encryption and payload generation for OSEP engagements.
 
 Takes raw shellcode (or generates via msfvenom), encrypts with stackable layers, and outputs ready-to-compile payloads in 9 formats.
 
+## Authorized use only
+
+This tool is published for use in authorized penetration testing engagements, capture-the-flag competitions, and security research conducted with the explicit written consent of the system owner. Running it against systems you do not own or do not have permission to test is illegal in most jurisdictions. The author accepts no liability for misuse, damage, or any consequence arising from the use of this software. See `LICENSE`.
+
 ## Install
 
 ```
