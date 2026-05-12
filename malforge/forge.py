@@ -102,7 +102,6 @@ def run(args):
         payload_url=getattr(args, 'url', ''),
     )
 
-    # TODO: --staged flag to dump .bin intermediates for debugging
     # output
     if args.output:
         with open(args.output, 'w') as f:
