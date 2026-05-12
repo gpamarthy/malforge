@@ -2,7 +2,6 @@ import os
 import pytest
 from malforge.crypt import chain
 from malforge.emit import render, FORMATS
-from malforge.forge import COMPAT
 
 
 SAMPLE = os.urandom(256)
@@ -409,6 +408,6 @@ class TestEdgeCases:
         out2 = render('exe', enc, meta)
         # namespace and class names should be randomized -- different each render
         # extract namespace line
-        ns1 = [l for l in out1.split('\n') if 'namespace' in l]
-        ns2 = [l for l in out2.split('\n') if 'namespace' in l]
+        ns1 = [line for line in out1.split('\n') if 'namespace' in line]
+        ns2 = [line for line in out2.split('\n') if 'namespace' in line]
         assert ns1 != ns2

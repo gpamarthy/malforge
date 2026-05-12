@@ -3,7 +3,6 @@ import sys
 import json
 import base64
 import winrm
-from pathlib import Path
 
 # Configuration from Environment or Telemetry
 TARGET_IP = os.getenv("MALFORGE_TARGET_IP", "192.168.40.154")
@@ -193,7 +192,6 @@ Get-ChildItem '{REMOTE_TEMP}' -Include *.exe,*.dll,*.hex,*.tmp,*.b64,*.csproj -R
             ("PowerShell Triple Enc", "-i sc.bin -f ps1 -e caesar,rc4,xor -o triple.ps1", "ps1"),
         ]
 
-        success_count = 0
         for name, args, fmt in payloads:
             # Handle output filename parsing
             import re

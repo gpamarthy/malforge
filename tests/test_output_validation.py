@@ -4,7 +4,6 @@ import tempfile
 import pytest
 from malforge.crypt import chain
 from malforge.emit import render
-from malforge.forge import COMPAT
 
 
 SC = os.urandom(256)
@@ -144,7 +143,7 @@ class TestPs1Structure:
 
     def test_no_rwx_in_alloc(self):
         out = _gen('ps1', ['xor'])
-        alloc_lines = [l for l in out.split('\n') if 'VirtualAlloc' in l and '::' in l]
+        alloc_lines = [line for line in out.split('\n') if 'VirtualAlloc' in line and '::' in line]
         for line in alloc_lines:
             assert '0x40' not in line, f'RWX allocation found: {line}'
 
@@ -173,7 +172,8 @@ class TestChainVariables:
 
 class TestCliOutputFiles:
     def _run_cli(self, fmt, methods, evasion=None, extra=None):
-        import subprocess, sys
+        import subprocess
+        import sys
         sc = os.urandom(64)
         inp = tempfile.NamedTemporaryFile(suffix='.bin', delete=False)
         inp.write(sc)
@@ -223,7 +223,8 @@ class TestCliOutputFiles:
         assert 'Etw' in content
 
     def test_js_cradle(self):
-        import subprocess, sys
+        import subprocess
+        import sys
         out = tempfile.NamedTemporaryFile(suffix='.js', delete=False)
         out.close()
         cmd = [sys.executable, '-m', 'malforge', '-f', 'js',
