@@ -1,2 +1,29 @@
 __pycache__/
 *.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+.venv-test/
+build/
+dist/
+.geminiignore
+.coverage
+
+# generated payload artifacts
+*.cs
+*.exe
+*.dll
+*.vba
+*.ps1
+*.csproj
+*.js
+*.bin
+*.b64
+*.hex
+
+# secrets
+*.pem
+*.key
+.env
