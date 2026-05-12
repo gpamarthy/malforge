@@ -1,5 +1,3 @@
-import pytest
-from pathlib import Path
 from malforge import emit, crypt
 
 def test_stealth_format_generation():
