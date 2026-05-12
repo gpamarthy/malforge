@@ -61,6 +61,7 @@ malforge --encodings
 | js | jscript.js | JScript - download cradle |
 | msbuild | msbuild.csproj | MSBuild inline task (applocker bypass) |
 | installutil | installutil.cs | InstallUtil uninstall (applocker bypass) |
+| stealth | cs_stealth.cs | Advanced C# - D/Invoke + HWBP + ETW Blinding |
 
 ## Encryption
 
@@ -82,6 +83,21 @@ Chain multiple: `-e xor,aes` encrypts with XOR first, then AES. The generated pa
 `--sandbox` adds sleep + timing checks to detect sandboxes (C#, VBA).
 
 **Memory safety:** All C# templates use RW→RX allocation (VirtualAlloc with PAGE_READWRITE, then VirtualProtect to PAGE_EXECUTE_READ). Never allocates RWX memory, which is the #1 AV detection signal for shellcode runners.
+
+## Verification
+
+This tool is rigorously tested against modern Windows defenses. 
+
+### Local Sandbox
+You can use the provided `Dockerfile.sandbox` to test tool installation and C# template compilation:
+```bash
+make test-sandbox
+```
+
+### Remote Validation
+For behavioral validation against a live Windows 10/11 VM, use the scripts in the `scripts/` directory:
+1. Run `Provision-Sandbox.ps1` on the target Windows VM to configure WinRM and repair Windows Update.
+2. Run `scripts/validate_payloads.py` on your Linux host to generate, deliver, and execute the full payload suite.
 
 ## Compiling C# output
 
