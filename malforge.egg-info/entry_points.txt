@@ -1,0 +1,2 @@
+[console_scripts]
+malforge = malforge.__main__:main
