@@ -1,0 +1,79 @@
+name: Bug report
+description: Something doesn't work the way it should
+labels: [bug, needs-triage]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: A short description of the problem.
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Commands you ran, in order.
+      placeholder: |
+        forge --format msbuild --amsi --etw --out /tmp/payload.csproj --shellcode /tmp/sc.bin
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual
+      description: What output you expected vs what you saw. Include rendered template excerpt if relevant.
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: malforge version
+      placeholder: '0.1.0'
+    validations:
+      required: true
+
+  - type: dropdown
+    id: format
+    attributes:
+      label: Output format
+      options:
+        - msbuild (csproj)
+        - hollow (process hollowing C#)
+        - ps1 (PowerShell stager)
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: evasion
+    attributes:
+      label: Evasion flags used
+      multiple: true
+      options:
+        - --amsi
+        - --etw
+        - none
+
+  - type: input
+    id: host
+    attributes:
+      label: Host
+      placeholder: 'Kali 2026.1 / Ubuntu 24.04 / macOS 14.5 / WSL2'
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Confirmations
+      options:
+        - label: I've searched existing issues
+          required: true
+        - label: I tested inside the sandbox (`make test-sandbox`), not by executing the payload on my host
+          required: true
+        - label: I have authorization for any target this payload was generated against
+          required: true

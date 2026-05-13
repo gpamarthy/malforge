@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussion / question
+    url: https://github.com/gpamarthy/malforge/discussions
+    about: Ask questions, share templates, propose ideas
+  - name: Security report
+    url: https://github.com/gpamarthy/malforge/blob/main/SECURITY.md
+    about: Do not file security issues publicly - see SECURITY.md

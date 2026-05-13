@@ -1,0 +1,46 @@
+name: Feature request
+description: Suggest a new output format, evasion stub, or capability
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve
+      description: Describe the red-team workflow or payload type that isn't covered today.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: One or two paragraphs. Not a full design.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of contribution
+      options:
+        - New output format (BOF, COFF, MSIX, HTA, etc.)
+        - New evasion stub (alongside --amsi / --etw)
+        - New shellcode source module
+        - CLI ergonomics
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What else you tried or thought about.
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope check
+      options:
+        - label: This isn't a request to ship pre-built signed payloads - malforge generates source from templates only
+        - label: This isn't a request to bypass a specific named EDR - bypass rates rotate and aren't tracked here
